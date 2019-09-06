@@ -174,16 +174,104 @@ strDelete:
     call free
     ret
  
+;-- -- -- -- -- -- -- --
+;rdi = chars* nombre
+;rsi = fichero
 strPrint:
+    mov rdx, rsi
+    mov rsi, rdi
+    mov rdi, rdx
+    call fprintf
     ret
     
+
+
+
+%define l_offset_first 0
+%define l_offset_last 8
+
+%define NULL 0
+
+%define node_size 24
+%define node_offset_data 0
+%define node_offset_next 8
+%define node_offset_prev 16
+
 listNew:
+    push rbp 
+    mov rbp, rsp
+    mov rdi, 16
+    call malloc 
+    mov QWORD [rax + l_offset_first], NULL
+    mov QWORD [rax + l_offset_last], NULL
+    pop rbp
     ret
 
+;-- -- -- -- -- -- -- --
+;rdi = puntero a lista
+;rsi = puntero a data
 listAddFirst:
+    push rbp    
+    push r12
+    push r13
+
+    mov rbp, rsp
+    mov r12, rsi
+    mov r13, rdi
+
+    mov rdi, node_size
+    call malloc
+
+    mov rdi, [r13 + l_offset_first]
+
+
+    mov [rax + node_offset_data], r12 ; r12 es puntero a data.
+    mov [rax + node_offset_next], rdi ; next es rdi
+    mov QWORD [rax + node_offset_prev], NULL ; addFirst no posee valor previo.
+
+    mov [r13 + l_offset_first], rax ; r13 es puntero a lista
+
+    cmp QWORD [r13 + l_offset_last], NULL
+    jne _endlistAddFirst
+    mov [r13 + l_offset_last], rax
+
+_endlistAddFirst:
+    pop r13
+    pop r12
+    pop rbp
     ret
 
+;-- -- -- -- -- -- -- --
+;rdi = puntero a lista
+;rsi = puntero a data
 listAddLast:
+    push rbp    
+    push r12
+    push r13
+
+    mov rbp, rsp
+    mov r12, rsi
+    mov r13, rdi
+
+    mov rdi, node_size
+    call malloc
+
+    mov rdi, [r13 + l_offset_last]
+
+    mov [rax + node_offset_data], r12 ; r12 es puntero a data.
+    mov QWORD [rax + node_offset_next], NULL ; addLast no posee valor siguiente.
+    mov [rax + node_offset_prev], rdi ; prev es rdi
+
+    mov [r13 + l_offset_last], rax ; r13 es puntero a lista
+
+    cmp QWORD [r13 + l_offset_first], NULL
+    jne _endlistAddLast
+    mov [r13 + l_offset_first], rax
+
+_endlistAddLast:
+    pop r13
+    pop r12
+    pop rbp
     ret
 
 listAdd:

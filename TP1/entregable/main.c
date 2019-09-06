@@ -12,20 +12,25 @@ void test_hashTable(FILE *pfile){
 }
 
 int main (void){
-	char* z = "hola mundo";
-	uint32_t a = strLen(z);
-	char* b = strClone(z);
-	//printf("%s, %s, %d", z, b, a);
+	char* compareA = "federico";
+	char* compareB = "sabatini";
 
-
-	char* compareA = "a";
-	char* compareB = "b";
-
-	int compare = strCmp(compareA, compareB);
+	//int compare = strCmp(compareA, compareB);
 	//printf("result of comp beetween %s, %s: %d", compareA, compareB, compare);
+	//char* res = strConcat(compareA, compareB);
+	//printf("concat %s", res);	
 
-	char* res = strConcat(compareA, compareB);
-	printf("concat %s", res);	
+	list_t* mylist = listNew();
+
+	listAddFirst(mylist, compareA);
+	listAddFirst(mylist, compareB);
+
+    char* resultA = mylist -> first -> data;
+    char* resultB = mylist -> last -> data;	
+	printf("mylist:  %s and %s", resultA, resultB);	
+	
+
+
 
     //FILE *pfile = fopen("salida.caso.propios.txt","w");
     //test_hashTable(pfile);
