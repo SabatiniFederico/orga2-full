@@ -33,7 +33,7 @@ strLen:
     push rbp
     mov rbp, rsp
 
-    mov rax, 0
+    xor rax, rax
 _lenLoop:
     inc rax
     mov cl, [rdi]
@@ -51,6 +51,7 @@ strClone:
     push r8
 
     mov rbp, rsp
+    xor rax, rax
 
     mov rsi, rdi
     mov r8, rdi
@@ -139,6 +140,7 @@ strConcat:
     push rdi
     push rsi
     mov rbp, rsp
+    xor rax, rax
 
     call strLen
     push rax
@@ -231,6 +233,7 @@ listAddFirst:
 
 
     mov [rax + node_offset_data], r12 ; r12 es puntero a data.
+
     mov [rax + node_offset_next], rdi ; next es rdi
     mov QWORD [rax + node_offset_prev], NULL ; addFirst no posee valor previo.
 
@@ -312,8 +315,9 @@ listAdd:
     cmp QWORD [r12 + l_offset_first], NULL
     je _listAddFirst
 
-
-    mov rdi, [r12 + l_offset_first]
+    mov r8, [r12 + l_offset_first]
+    mov r8, [r8]
+    mov rdi, r8
     mov rsi, r13
 
     ;Chequeo si nuevo elemento debe ser colocado en la primera casilla.
@@ -321,8 +325,9 @@ listAdd:
     cmp rax, -1
     je _listAddFirst
 
-
-    mov rdi, [r12 + l_offset_last]
+    mov r8, [r12 + l_offset_last]
+    mov r8, [r8]
+    mov rdi, r8
     mov rsi, r13
 
     ;Chequeo si nuevo elemento debe ser colocado en la ultima casilla.
