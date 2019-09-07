@@ -229,6 +229,11 @@ listAddFirst:
     mov [rax + node_offset_next], rdi ; next es rdi
     mov QWORD [rax + node_offset_prev], NULL ; addFirst no posee valor previo.
 
+    cmp QWORD rdi, NULL 
+    je _noNextElement
+    mov [rdi + node_offset_prev], rax
+
+_noNextElement:   
     mov [r13 + l_offset_first], rax ; r13 es puntero a lista
 
     cmp QWORD [r13 + l_offset_last], NULL
@@ -262,6 +267,11 @@ listAddLast:
     mov QWORD [rax + node_offset_next], NULL ; addLast no posee valor siguiente.
     mov [rax + node_offset_prev], rdi ; prev es rdi
 
+    cmp QWORD rdi, NULL 
+    je _noPrevElement
+    mov [rdi + node_offset_next], rax
+
+_noPrevElement:   
     mov [r13 + l_offset_last], rax ; r13 es puntero a lista
 
     cmp QWORD [r13 + l_offset_first], NULL
