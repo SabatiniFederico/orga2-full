@@ -48,6 +48,8 @@ _lenLoop:
 ;rdi = *chars
 strClone:
     push rbp  
+    push r8
+
     mov rbp, rsp
 
     mov rsi, rdi
@@ -86,6 +88,7 @@ _copyLoop:
     cmp rdi, 0
     jne _copyLoop
 
+    pop r8
     pop rbp
     ret
 
@@ -93,8 +96,10 @@ _copyLoop:
 ;rdi = chars* cmpA
 ;rsi = chars* cmpB 
 strCmp:
+
     push rbp  
     mov rbp, rsp
+    xor rax, rax
 
 _cmpLoop:
 
@@ -284,7 +289,103 @@ _endlistAddLast:
     pop rbp
     ret
 
+
+;-- -- -- -- -- -- -- --
 listAdd:
+    push rbp    
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov rbp, rsp
+    mov r12, rdi ; puntero a lista
+    mov r13, rsi ; puntero a data
+    mov r14, rdx ; puntero a compare function     
+
+    mov rdi, node_size
+    call malloc
+
+    mov r15, rax ; puntero a nuevo nodo
+
+    ;Chequeo si la lista no esta vacia 
+    cmp QWORD [r12 + l_offset_first], NULL
+    je _listAddFirst
+
+
+    mov rdi, [r12 + l_offset_first]
+    mov rsi, r13
+
+    ;Chequeo si nuevo elemento debe ser colocado en la primera casilla.
+    call QWORD r14
+    cmp rax, -1
+    je _listAddFirst
+
+
+    mov rdi, [r12 + l_offset_last]
+    mov rsi, r13
+
+    ;Chequeo si nuevo elemento debe ser colocado en la ultima casilla.
+    call QWORD r14
+    cmp rax, 1
+    je _listAddLast
+
+    ;No tengo mas casos borde, loopeo y termino.
+    mov r12, [r12 + l_offset_first]
+    ;tengo que hacer sucesivos llamados a cmp.
+_siguiente:
+    
+    mov rdi, [r12 + node_offset_data]
+    mov rsi, r13
+
+
+    call QWORD r14
+    cmp rax, -1
+    je _insertNewNode
+
+    mov r12, [r12 + node_offset_next]
+    jmp _siguiente
+
+_insertNewNode:
+    mov [r15 + node_offset_data], r13 ; inserto la data en rax.
+
+    ;acomodo los punteros en nuevo nodo.
+    mov rsi, r12
+    mov [r15 + node_offset_next], rsi
+    mov rsi, [r12 + node_offset_prev] 
+    mov [r15 + node_offset_prev], rsi
+
+    ;acomodo los punteros en prev y next
+    mov rdi, [r12 + node_offset_prev]
+
+    mov rsi, [r15 + node_offset_prev]
+    mov [rdi + node_offset_next], rsi
+
+    mov rsi, [r15 + node_offset_next]
+    mov [r12 + node_offset_prev], rsi
+    jmp _endListAdd
+;si lista esta vacia listAdd es igual a listAddFirst,
+;si primer elemento mayor a data, listAdd es igual a listAddFirst
+_listAddFirst:
+    mov rdi, r12
+    mov rsi, r13
+    call listAddFirst
+    jmp _endListAdd
+
+;Si ultimo elemento menor a data, 
+_listAddLast:
+    mov rdi, r12
+    mov rsi, r13
+    call listAddLast
+    jmp _endListAdd
+
+_endListAdd:
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
     ret
 
 listRemove:
