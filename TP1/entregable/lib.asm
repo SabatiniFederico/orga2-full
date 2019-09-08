@@ -463,16 +463,17 @@ listRemoveFirst:
     cmp QWORD rdi, NULL ; reviso que exista el next.
     je .noNext
 
-    mov [rdi + node_offset_prev], r12       ; l -> first -> next -> prev = NULL
+    mov QWORD [rdi + node_offset_prev], NULL       ; l -> first -> next -> prev = NULL
     mov [r12 + l_offset_first], rdi         ; l -> first = l -> first -> next -> prev
     jmp .endRemoveFirst
 .noNext:
-    mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL
+    mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL 
+    mov QWORD [r12 + l_offset_last], NULL  
 
+.endRemoveFirst:
     mov rdi, rsi
     call free ; Elmino efectivamente el nodo.
 
-.endRemoveFirst:
     pop r12
 
     pop rbp
@@ -510,11 +511,13 @@ listRemoveLast:
     jmp .endRemoveLast
 .noPrev:
     mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL (es lo mismo que last en este caso)
+    mov QWORD [r12 + l_offset_last], NULL  
+
+
+.endRemoveLast:
 
     mov rdi, rsi
     call free
-
-.endRemoveLast:
     pop r12
 
     pop rbp
@@ -575,42 +578,39 @@ listDelete:
 listPrint:
     push rbp
     mov rbp, rsp
-    sub rsp, 8 ; ESTA LINEA ME CONSTO HORAS Y HORAS DE MI VIDA. ESTOY A PUNTO DE MORIR.
-
+    sub rsp, 8 ; ESTA LINEA LA ODIO PERO NO LA PUEDO SACAR, ¿por alguna razón llega mal alineado quizas?
     push r12 
     push r13
     push r14
 
     mov r12, rdi ; r12 es lista
     mov r13, rsi ; r13 es FILE
-    mov r14, rsi ; r14 es funcPrint
+    mov r14, rdx ; r14 es funcPrint
 
     mov rdi, listaCorcheteIzq
     mov rsi, r13
-    call strPrint                           ; -> prints "["
+    call strPrint                               ; -> prints "["
 
-    cmp QWORD [r12+ l_offset_first], NULL   ; Reviso que exista first elem
+    cmp QWORD [r12+ l_offset_first], NULL       ; Reviso que exista first elem
     je .endPrint
 
-    mov r12, [r12 + l_offset_first]         ; -> itero al primer elem
+    mov r12, [r12 + l_offset_first]             ; -> itero al primer elem
     mov rdi, [r12 + node_offset_data]       
     mov rsi, r13        
-
-    call strPrint                               ; -> prints "data"
+    call QWORD r14                               ; -> prints "data"
 
 .loopPrint:
-    cmp QWORD [r12 + node_offset_next], NULL ; Reviso que exista sig elem
+    cmp QWORD [r12 + node_offset_next], NULL    ; Reviso que exista sig elem
     je .endPrint
 
     mov rdi, listaSeparador
     mov rsi, r13
-    call strPrint                           ; -> prints ","
+    call strPrint                               ; -> prints ","
 
-    mov r12, [r12 + node_offset_next]       ; -> itero al siig elem
-
+    mov r12, [r12 + node_offset_next]           ; -> itero al siig elem
     mov rdi, [r12 + node_offset_data]       
     mov rsi, r13
-    call strPrint                             ; -> prints "data"
+    call QWORD r14                               ; -> prints "data"
 
     jmp .loopPrint
 

@@ -31,6 +31,17 @@ char* strSubstring(char* pString, uint32_t inicio, uint32_t fin) {
 
 void listPrintReverse(list_t* pList, FILE *pFile, funcPrint_t* fp) {
 
+	listElem_t* element = pList -> last;
+
+	fprintf(pFile,"[");
+
+	while (element) {
+		fp(element -> data, pFile);
+		if (element -> prev)
+			fprintf(pFile,",");
+		element = element -> prev;
+	}
+	fprintf(pFile,"]");
 }
 
 /** HashTable **/

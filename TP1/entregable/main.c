@@ -46,14 +46,19 @@ int main (void){
     listAddFirst(l1,strClone("PRIMERO"));
     listAddLast(l1,strClone("ULTIMO"));
 
+    listRemoveLast(l1, (funcDelete_t*)&strDelete);
+    listRemoveFirst(l1, (funcDelete_t*)&strDelete);
+
+
     listPrint(l1,pfile,(funcPrint_t*)&strPrint);
+    listPrintReverse(l1,pfile,(funcPrint_t*)&strPrint);
 
     listDelete(l1, (funcDelete_t*)&strDelete);
 
     //test_strings(pfile);
     //test_hashTable(pfile);
     
-    test_strings(pfile);    
+    //test_strings(pfile);    
 
     fclose(pfile);
 
