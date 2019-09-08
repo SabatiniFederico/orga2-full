@@ -13,7 +13,7 @@ void test_hashTable(FILE *pfile){
 
 int main (void){
 
-	/*
+	
 	char* strings[10] = {"aa","bb","dd","ff","00","zz","cc","ee","gg","hh"};
 	list_t* l1 = listNew();
 
@@ -23,17 +23,17 @@ int main (void){
     listAddLast(l1,strClone("ULTIMO"));
 
     imprimirLista(l1);
-    */
+    
 
 	//[PRIMERO,00,aa,bb,dd,ff,ULTIMO]
 
 
-    FILE *pfile = fopen("salida.caso.propios.txt","w");
+    //FILE *pfile = fopen("salida.caso.propios.txt","w");
 
 
-    test_strings(pfile);
+    //test_strings(pfile);
     //test_hashTable(pfile);
-    fclose(pfile);
+    //fclose(pfile);
 
 
 
@@ -95,7 +95,7 @@ void test_strings(FILE *pfile) {
         }
     }
 }
-/*
+
 void imprimirLista(list_t* l1){
 	if(l1 -> first == NULL) {
 		printf("NULL");
@@ -109,4 +109,4 @@ void imprimirLista(list_t* l1){
 		} while (elem != NULL);
 		printf("]");
 	}
-}*/
+}

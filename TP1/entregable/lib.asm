@@ -146,32 +146,33 @@ strConcat:
     mov rdi, r12
     mov rsi, r13
 
-_addcmpA:
+.addcmpA:
     mov cl, [rdi]
     inc rdi
     cmp cl, 0
-    je _addcmpB
+    je .addcmpB
 
     mov [r8], cl    
     inc r8
-    jmp _addcmpA
+    jmp .addcmpA
 
-_addcmpB:
+.addcmpB:
     mov cl, [rsi]
     mov [r8], cl 
     inc rsi    
     inc r8
     cmp cl, 0
-    jne _addcmpB
+    jne .addcmpB
 
     mov rdi, r12
     call free
     cmp r12, r13
 
-    je _avoidStrFreeDuplication
+    je .avoidFreeDuplication
     mov rdi, r13
     call free
-_avoidStrFreeDuplication: 
+
+.avoidFreeDuplication: 
     mov rax, r14
 
     pop r14
@@ -199,10 +200,10 @@ strPrint:
     mov rdi, rdx
 
     cmp BYTE [rsi], NULL
-    jne _strprintNoNull
+    jne .printIsNotNull
     mov rsi, textnull
 
-_strprintNoNull:
+.printIsNotNull:
     call fprintf
     pop rbp 
     ret
@@ -249,17 +250,17 @@ listAddFirst:
     mov QWORD [rax + node_offset_prev], NULL ; addFirst no posee valor previo.
 
     cmp QWORD rdi, NULL 
-    je _noNextElement
+    je .noNextElement
     mov [rdi + node_offset_prev], rax
 
-_noNextElement:   
+.noNextElement:   
     mov [r13 + l_offset_first], rax ; r13 es puntero a lista
 
     cmp QWORD [r13 + l_offset_last], NULL
-    jne _endlistAddFirst
+    jne .endAddFirst
     mov [r13 + l_offset_last], rax
 
-_endlistAddFirst:
+.endAddFirst:
     pop r13
     pop r12
     pop rbp
@@ -287,17 +288,17 @@ listAddLast:
     mov [rax + node_offset_prev], rdi ; prev es rdi
 
     cmp QWORD rdi, NULL 
-    je _noPrevElement
+    je .noPrevElement
     mov [rdi + node_offset_next], rax
 
-_noPrevElement:   
+.noPrevElement:   
     mov [r13 + l_offset_last], rax ; r13 es puntero a lista
 
     cmp QWORD [r13 + l_offset_first], NULL
-    jne _endlistAddLast
+    jne .endAddLast
     mov [r13 + l_offset_first], rax
 
-_endlistAddLast:
+.endAddLast:
     pop r13
     pop r12
     pop rbp
@@ -324,7 +325,7 @@ listAdd:
 
     ;Chequeo si la lista no esta vacia 
     cmp QWORD [r12 + l_offset_first], NULL
-    je _listAddFirst
+    je .listAddFirst
 
     mov r8, [r12 + l_offset_first]
     mov r8, [r8]
@@ -334,7 +335,7 @@ listAdd:
     ;Chequeo si nuevo elemento debe ser colocado en la primera casilla.
     call QWORD r14
     cmp rax, -1
-    je _listAddFirst
+    je .listAddFirst
 
     mov r8, [r12 + l_offset_last]
     mov r8, [r8]
@@ -344,12 +345,12 @@ listAdd:
     ;Chequeo si nuevo elemento debe ser colocado en la ultima casilla.
     call QWORD r14
     cmp rax, 1
-    je _listAddLast
+    je .listAddLast
 
     ;No tengo mas casos borde, loopeo y termino.
     mov r12, [r12 + l_offset_first]
     ;tengo que hacer sucesivos llamados a cmp.
-_siguiente:
+.siguienteAdd:
     
     mov rdi, [r12 + node_offset_data]
     mov rsi, r13
@@ -357,12 +358,12 @@ _siguiente:
 
     call QWORD r14
     cmp rax, -1
-    je _insertNewNode
+    je .insertNewNode
 
     mov r12, [r12 + node_offset_next]
-    jmp _siguiente
+    jmp .siguienteAdd
 
-_insertNewNode:
+.insertNewNode:
     mov [r15 + node_offset_data], r13 ; inserto la data en rax.
 
     ;acomodo los punteros en nuevo nodo.
@@ -379,23 +380,23 @@ _insertNewNode:
 
     mov rsi, [r15 + node_offset_next]
     mov [r12 + node_offset_prev], rsi
-    jmp _endListAdd
+    jmp .end
 ;si lista esta vacia listAdd es igual a listAddFirst,
 ;si primer elemento mayor a data, listAdd es igual a listAddFirst
-_listAddFirst:
+.listAddFirst:
     mov rdi, r12
     mov rsi, r13
     call listAddFirst
-    jmp _endListAdd
+    jmp .end
 
 ;Si ultimo elemento menor a data, 
-_listAddLast:
+.listAddLast:
     mov rdi, r12
     mov rsi, r13
     call listAddLast
-    jmp _endListAdd
+    jmp .end
 
-_endListAdd:
+.end:
 
     pop r15
     pop r14
