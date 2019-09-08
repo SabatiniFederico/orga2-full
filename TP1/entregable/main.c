@@ -38,18 +38,30 @@ int main (void){
     */
 
 
-    //FILE *pfile = fopen("salida.caso.propios.txt","w");
+    FILE *pfile = fopen("salida.caso.propios.txt","w");
 
+    
+    list_t* l1 = listNew();
+
+    listAddFirst(l1,strClone("PRIMERO"));
+    listAddLast(l1,strClone("ULTIMO"));
+
+    listPrint(l1,pfile,(funcPrint_t*)&strPrint);
+
+    listDelete(l1, (funcDelete_t*)&strDelete);
 
     //test_strings(pfile);
     //test_hashTable(pfile);
-    //fclose(pfile);
+    
+    test_strings(pfile);    
+
+    fclose(pfile);
 
 
 
     return 0;
 }
-/*
+
 void test_strings(FILE *pfile) {
     char *a, *b, *c;
     // clone
@@ -103,7 +115,7 @@ void test_strings(FILE *pfile) {
             fprintf(pfile,"cmp(%s,%s) -> %i\n",texts[i],texts[j],strCmp(texts[i],texts[j]));
         }
     }
-}*/
+}
 
 void imprimirLista(list_t* l1){
 	if(l1 -> first == NULL) {

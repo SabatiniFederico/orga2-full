@@ -1,5 +1,12 @@
 
 section .rodata
+textnull: db "NULL",0
+textString: db "%s",0
+
+listaCorcheteIzq: db  "[",0
+listaCorcheteDer:  db  "]",0
+listaSeparador:  db  ",",0
+
 
 section .text
 
@@ -41,6 +48,7 @@ strLen:
     cmp cl, 0
     jne .lenLoop
     dec rax
+
     pop rbp
     ret
 
@@ -48,10 +56,14 @@ strLen:
 ;rdi = *chars
 strClone:
     push rbp  
+    mov rbp, rsp
+
     push r12
     push r13
 
-    mov rbp, rsp
+
+
+
     xor rax, rax
     mov r12, rdi ; puntero original
 
@@ -59,7 +71,7 @@ strClone:
     mov rdi, rax
     inc rdi
 
-    call malloc
+    call malloc 
     mov r13, rax ; direccion copia
 
 .copyLoop:
@@ -73,8 +85,10 @@ strClone:
     cmp cl, 0
     jne .copyLoop
 
+
     pop r13
     pop r12
+
     pop rbp
     ret
 
@@ -85,6 +99,7 @@ strCmp:
 
     push rbp  
     mov rbp, rsp
+
     xor rax, rax
 
 .cmpLoop:
@@ -114,6 +129,7 @@ strCmp:
     mov rax, 1
 
 .endcmp:
+
     pop rbp
     ret
 
@@ -122,11 +138,12 @@ strCmp:
 ;rsi = chars* cmpB 
 strConcat:
     push rbp  
+    mov rbp, rsp
+
     push r12
     push r13
     push r14
 
-    mov rbp, rsp
     mov r12, rdi; cmpA
     mov r13, rsi; cmpB
     xor rax, rax
@@ -178,33 +195,41 @@ strConcat:
     pop r14
     pop r13
     pop r12
+
     pop rbp
     ret
 
 ;-- -- -- -- -- -- -- --
 strDelete:
+    push rbp
+    mov rbp, rsp
+
     call free
+
+    pop rbp
     ret
  
 %define NULL 0
-textnull db "NULL",0
+
+
 ;-- -- -- -- -- -- -- --
 ;rdi = chars* nombre
 ;rsi = fichero
 strPrint:
-    push rbp  
+    push rbp
     mov rbp, rsp
 
-    mov rdx, rsi
-    mov rsi, rdi
-    mov rdi, rdx
+    mov rdx, rdi ; chars* en rdx
+    mov rdi, rsi ; fichero en rdi
+    mov rsi, textString ; %s en rsi
 
-    cmp BYTE [rsi], NULL
+    cmp BYTE [rdx], NULL
     jne .printIsNotNull
-    mov rsi, textnull
 
+    mov rsi, textnull
 .printIsNotNull:
     call fprintf
+
     pop rbp 
     ret
     
@@ -219,10 +244,12 @@ strPrint:
 listNew:
     push rbp 
     mov rbp, rsp
-    mov rdi, 16
+
     call malloc 
+
     mov QWORD [rax + l_offset_first], NULL
     mov QWORD [rax + l_offset_last], NULL
+
     pop rbp
     ret
 
@@ -231,15 +258,17 @@ listNew:
 ;rsi = puntero a data
 listAddFirst:
     push rbp    
+    mov rbp, rsp
+
     push r12
     push r13
 
-    mov rbp, rsp
     mov r12, rsi
     mov r13, rdi
 
     mov rdi, node_size
-    call malloc
+
+    call malloc 
 
     mov rdi, [r13 + l_offset_first]
 
@@ -263,6 +292,7 @@ listAddFirst:
 .endAddFirst:
     pop r13
     pop r12
+
     pop rbp
     ret
 
@@ -270,16 +300,19 @@ listAddFirst:
 ;rdi = puntero a lista
 ;rsi = puntero a data
 listAddLast:
-    push rbp    
+    push rbp   
+    mov rbp, rsp
+
     push r12
     push r13
 
-    mov rbp, rsp
+
     mov r12, rsi
     mov r13, rdi
 
     mov rdi, node_size
-    call malloc
+
+    call malloc 
 
     mov rdi, [r13 + l_offset_last]
 
@@ -301,6 +334,7 @@ listAddLast:
 .endAddLast:
     pop r13
     pop r12
+
     pop rbp
     ret
 
@@ -308,12 +342,12 @@ listAddLast:
 ;-- -- -- -- -- -- -- --
 listAdd:
     push rbp    
+    mov rbp, rsp    
     push r12
     push r13
     push r14
     push r15
 
-    mov rbp, rsp
     mov r12, rdi ; puntero a lista
     mov r13, rsi ; puntero a data
     mov r14, rdx ; puntero a compare function     
@@ -344,7 +378,8 @@ listAdd:
 
     ;No tengo mas casos borde, creo el nodo, loopeo y termino.
     mov rdi, node_size
-    call malloc
+    call malloc 
+
     mov r15, rax ; puntero a nuevo nodo
 
 
@@ -400,6 +435,7 @@ listAdd:
     pop r14
     pop r13
     pop r12
+
     pop rbp
     ret
 
@@ -409,9 +445,10 @@ listAdd:
 ;rsi es puntero a delete func.
 listRemoveFirst:
     push rbp    
+    mov rbp, rsp
+
     push r12
 
-    mov rbp, rsp
     mov r12, rdi ; r12 es lista
 
     mov rdi, [rdi + l_offset_first]         ; l -> first
@@ -437,6 +474,7 @@ listRemoveFirst:
 
 .endRemoveFirst:
     pop r12
+
     pop rbp
     ret
 
@@ -445,9 +483,10 @@ listRemoveFirst:
 ;rsi es puntero a delete func.
 listRemoveLast:
     push rbp
+    mov rbp, rsp
+
     push r12
 
-    mov rbp, rsp
     mov r12, rdi ; r12 es lista
 
     mov rdi, [rdi + l_offset_last]          ; l -> last
@@ -477,6 +516,7 @@ listRemoveLast:
 
 .endRemoveLast:
     pop r12
+
     pop rbp
     ret
 
@@ -495,11 +535,12 @@ listDelete:
 
     ;entiendo que eso pierde un poco de performance. así que voy a loopear.
     push rbp
+    mov rbp, rsp
+
     push r12 
     push r13
     push r14
 
-    mov rbp, rsp
     mov r12, rdi ; r12 es lista
     mov r13, [r12 + l_offset_first] ; mi iterador
     mov r14, rsi ; my delete func.
@@ -526,10 +567,63 @@ listDelete:
     pop r14
     pop r13
     pop r12
+
     pop rbp
     ret
 
+;-- -- -- -- -- -- -- --
 listPrint:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 8 ; ESTA LINEA ME CONSTO HORAS Y HORAS DE MI VIDA. ESTOY A PUNTO DE MORIR.
+
+    push r12 
+    push r13
+    push r14
+
+    mov r12, rdi ; r12 es lista
+    mov r13, rsi ; r13 es FILE
+    mov r14, rsi ; r14 es funcPrint
+
+    mov rdi, listaCorcheteIzq
+    mov rsi, r13
+    call strPrint                           ; -> prints "["
+
+    cmp QWORD [r12+ l_offset_first], NULL   ; Reviso que exista first elem
+    je .endPrint
+
+    mov r12, [r12 + l_offset_first]         ; -> itero al primer elem
+    mov rdi, [r12 + node_offset_data]       
+    mov rsi, r13        
+
+    call strPrint                               ; -> prints "data"
+
+.loopPrint:
+    cmp QWORD [r12 + node_offset_next], NULL ; Reviso que exista sig elem
+    je .endPrint
+
+    mov rdi, listaSeparador
+    mov rsi, r13
+    call strPrint                           ; -> prints ","
+
+    mov r12, [r12 + node_offset_next]       ; -> itero al siig elem
+
+    mov rdi, [r12 + node_offset_data]       
+    mov rsi, r13
+    call strPrint                             ; -> prints "data"
+
+    jmp .loopPrint
+
+.endPrint:
+    mov rdi, listaCorcheteDer
+    mov rsi, r13
+    call strPrint                           ; -> prints "]"
+
+    pop r14
+    pop r13
+    pop r12
+    add rsp, 8
+    pop rbp
     ret
 
 hashTableNew:
