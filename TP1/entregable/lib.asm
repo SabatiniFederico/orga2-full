@@ -34,12 +34,13 @@ strLen:
     mov rbp, rsp
 
     xor rax, rax
-_lenLoop:
+.lenLoop:
     inc rax
     mov cl, [rdi]
     inc rdi
     cmp cl, 0
-    jne _lenLoop
+    jne .lenLoop
+    dec rax
     pop rbp
     ret
 
@@ -56,11 +57,12 @@ strClone:
 
     call strLen
     mov rdi, rax
+    inc rdi
 
     call malloc
     mov r13, rax ; direccion copia
 
-_copyLoop:
+.copyLoop:
     
     mov cl, [r12]
     mov [r13], cl
@@ -69,7 +71,7 @@ _copyLoop:
     inc r13
 
     cmp cl, 0
-    jne _copyLoop
+    jne .copyLoop
 
     pop r13
     pop r12
@@ -85,33 +87,33 @@ strCmp:
     mov rbp, rsp
     xor rax, rax
 
-_cmpLoop:
+.cmpLoop:
 
     mov cl, [rdi]
     mov bl, [rsi]
 
     cmp cl, bl
 
-    jg _Apeor
-    jl _Bpeor
+    jg .Apeor
+    jl .Bpeor
 
     cmp cl, 0
-    je _ABiguales
+    je .ABiguales
 
     inc rdi
     inc rsi
-    jmp _cmpLoop
+    jmp .cmpLoop
 
-_ABiguales:
+.ABiguales:
     mov rax, 0
-    jmp _endcmp
-_Apeor:
+    jmp .endcmp
+.Apeor:
     mov rax, -1
-    jmp _endcmp
-_Bpeor:
+    jmp .endcmp
+.Bpeor:
     mov rax, 1
 
-_endcmp:
+.endcmp:
     pop rbp
     ret
 
@@ -120,23 +122,29 @@ _endcmp:
 ;rsi = chars* cmpB 
 strConcat:
     push rbp  
-    push rdi
-    push rsi
+    push r12
+    push r13
+    push r14
+
     mov rbp, rsp
+    mov r12, rdi; cmpA
+    mov r13, rsi; cmpB
     xor rax, rax
 
     call strLen
     push rax
+
     mov rdi, rsi
     call strLen
     pop rdi
     add rdi, rax
-
+    inc rdi
     call malloc 
 
     mov r8, rax
-    pop rsi
-    pop rdi
+    mov r14, rax
+    mov rdi, r12
+    mov rsi, r13
 
 _addcmpA:
     mov cl, [rdi]
@@ -156,6 +164,19 @@ _addcmpB:
     cmp cl, 0
     jne _addcmpB
 
+    mov rdi, r12
+    call free
+    cmp r12, r13
+
+    je _avoidStrFreeDuplication
+    mov rdi, r13
+    call free
+_avoidStrFreeDuplication: 
+    mov rax, r14
+
+    pop r14
+    pop r13
+    pop r12
     pop rbp
     ret
 
@@ -164,27 +185,30 @@ strDelete:
     call free
     ret
  
+%define NULL 0
+textnull db "NULL",0
 ;-- -- -- -- -- -- -- --
 ;rdi = chars* nombre
 ;rsi = fichero
 strPrint:
     push rbp  
     mov rbp, rsp
-    
+
     mov rdx, rsi
     mov rsi, rdi
     mov rdi, rdx
+
+    cmp BYTE [rsi], NULL
+    jne _strprintNoNull
+    mov rsi, textnull
+
+_strprintNoNull:
     call fprintf
     pop rbp 
     ret
     
-
-
-
 %define l_offset_first 0
 %define l_offset_last 8
-
-%define NULL 0
 
 %define node_size 24
 %define node_offset_data 0

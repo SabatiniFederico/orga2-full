@@ -4,7 +4,27 @@
 
 char* strSubstring(char* pString, uint32_t inicio, uint32_t fin) {
 
-    return 0;
+	int lenght = strLen(pString);
+
+	if(inicio > fin){
+		return pString;
+	}
+
+	if (inicio > lenght){
+		return strClone("");
+	}
+
+	fin = fin + 1;
+	if(fin > lenght){
+		fin = lenght; 
+	}
+
+	//terminados casos borde.
+	for(int i = 0; i < fin - inicio; i++)
+		pString[i] = pString[i + inicio];
+
+	pString[fin - inicio] = '\0';
+	return pString;
 }
 
 /** Lista **/
