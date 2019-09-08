@@ -22,6 +22,11 @@ int main (void){
     listAddFirst(l1,strClone("PRIMERO"));
     listAddLast(l1,strClone("ULTIMO"));
 
+
+    imprimirLista(l1);
+
+    listRemoveFirst(l1, (funcDelete_t*)&strDelete);
+
     imprimirLista(l1);
     
 
@@ -39,8 +44,7 @@ int main (void){
 
     return 0;
 }
-
-/** STRINGS **/
+/*
 void test_strings(FILE *pfile) {
     char *a, *b, *c;
     // clone
@@ -94,7 +98,7 @@ void test_strings(FILE *pfile) {
             fprintf(pfile,"cmp(%s,%s) -> %i\n",texts[i],texts[j],strCmp(texts[i],texts[j]));
         }
     }
-}
+}*/
 
 void imprimirLista(list_t* l1){
 	if(l1 -> first == NULL) {

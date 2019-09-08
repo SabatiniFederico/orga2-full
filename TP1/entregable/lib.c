@@ -4,7 +4,7 @@
 
 char* strSubstring(char* pString, uint32_t inicio, uint32_t fin) {
 
-	int lenght = strLen(pString);
+	uint32_t lenght = strLen(pString);
 
 	if(inicio > fin){
 		return pString;
@@ -20,7 +20,7 @@ char* strSubstring(char* pString, uint32_t inicio, uint32_t fin) {
 	}
 
 	//terminados casos borde.
-	for(int i = 0; i < fin - inicio; i++)
+	for(uint32_t i = 0; i < fin - inicio; i++)
 		pString[i] = pString[i + inicio];
 
 	pString[fin - inicio] = '\0';

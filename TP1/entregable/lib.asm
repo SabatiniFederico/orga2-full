@@ -380,24 +380,23 @@ listAdd:
 
     mov rsi, [r15 + node_offset_next]
     mov [r12 + node_offset_prev], rsi
-    jmp .end
+    jmp .endAdd
 ;si lista esta vacia listAdd es igual a listAddFirst,
 ;si primer elemento mayor a data, listAdd es igual a listAddFirst
 .listAddFirst:
     mov rdi, r12
     mov rsi, r13
     call listAddFirst
-    jmp .end
+    jmp .endAdd
 
 ;Si ultimo elemento menor a data, 
 .listAddLast:
     mov rdi, r12
     mov rsi, r13
     call listAddLast
-    jmp .end
+    jmp .endAdd
 
-.end:
-
+.endAdd:
     pop r15
     pop r14
     pop r13
@@ -405,14 +404,47 @@ listAdd:
     pop rbp
     ret
 
-listRemove:
-    ret
 
+;-- -- -- -- -- -- -- --
+;rdi es puntero a lista
+;rsi es puntero a delete func.
 listRemoveFirst:
+    push rbp    
+    push r12
+    push r13
+
+    mov rbp, rsp
+    mov r12, rdi ; r12 es lista
+    mov r13, rsi ; r13 es delete func.
+
+    mov rdi, [rdi + l_offset_first]         ; l -> first
+    mov rdi, [rdi + node_offset_data]       ; l -> first-> data
+    call rsi                                ; data removed
+
+    mov rdi, [r12 + l_offset_first]         ; l->first
+    mov rdi, [rdi+ node_offset_next]        ; new_first = l->first->next
+
+    cmp QWORD rdi, NULL ; reviso que exista el next.
+    je .noNext
+
+    mov [rdi + node_offset_prev], r12       ; l -> first -> next -> prev = l -> first
+    mov [r12 + l_offset_first], rdi         ; l -> first = l -> first -> next -> prev
+    jmp .endRemoveFirst
+.noNext:
+    mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL
+
+.endRemoveFirst:
+    pop r13
+    pop r12
+    pop rbp
     ret
 
 listRemoveLast:
     ret
+
+listRemove:
+    ret
+
 
 listDelete:
     ret
