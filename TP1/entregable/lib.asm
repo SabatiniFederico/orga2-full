@@ -40,7 +40,6 @@ _lenLoop:
     inc rdi
     cmp cl, 0
     jne _lenLoop
-    dec rax
     pop rbp
     ret
 
@@ -48,48 +47,32 @@ _lenLoop:
 ;rdi = *chars
 strClone:
     push rbp  
-    push r8
+    push r12
+    push r13
 
     mov rbp, rsp
     xor rax, rax
+    mov r12, rdi ; puntero original
 
-    mov rsi, rdi
-    mov r8, rdi
-    mov rdi, 0
+    call strLen
+    mov rdi, rax
 
-_cloneLoop:
-    inc rdi
-    mov cl, [r8]
-    inc r8
-    cmp cl, 0
-    jne _cloneLoop
-
-    dec rdi
-
-    push rdi
-    push rsi
     call malloc
-    pop rsi
-    pop rdi
+    mov r13, rax ; direccion copia
 
-    mov r8, rax
-
-;r9 = *chars origen
-;r8 = *chars destino
-;rdi = lenght
 _copyLoop:
-    dec rdi
+    
+    mov cl, [r12]
+    mov [r13], cl
 
-    mov cl, [rsi]
-    mov [r8], cl
+    inc r12 
+    inc r13
 
-    inc r8
-    inc rsi
-
-    cmp rdi, 0
+    cmp cl, 0
     jne _copyLoop
 
-    pop r8
+    pop r13
+    pop r12
     pop rbp
     ret
 
@@ -185,10 +168,14 @@ strDelete:
 ;rdi = chars* nombre
 ;rsi = fichero
 strPrint:
+    push rbp  
+    mov rbp, rsp
+    
     mov rdx, rsi
     mov rsi, rdi
     mov rdi, rdx
     call fprintf
+    pop rbp 
     ret
     
 
