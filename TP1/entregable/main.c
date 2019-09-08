@@ -26,6 +26,7 @@ int main (void){
     imprimirLista(l1);
 
     listRemoveFirst(l1, (funcDelete_t*)&strDelete);
+    listRemoveLast(l1, (funcDelete_t*)&strDelete);
 
     imprimirLista(l1);
     

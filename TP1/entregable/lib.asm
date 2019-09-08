@@ -411,35 +411,64 @@ listAdd:
 listRemoveFirst:
     push rbp    
     push r12
-    push r13
 
     mov rbp, rsp
     mov r12, rdi ; r12 es lista
-    mov r13, rsi ; r13 es delete func.
 
     mov rdi, [rdi + l_offset_first]         ; l -> first
     mov rdi, [rdi + node_offset_data]       ; l -> first-> data
     call rsi                                ; data removed
 
     mov rdi, [r12 + l_offset_first]         ; l->first
-    mov rdi, [rdi+ node_offset_next]        ; new_first = l->first->next
+    mov rdi, [rdi+ node_offset_next]        ; new_first = l - >first -> next
 
     cmp QWORD rdi, NULL ; reviso que exista el next.
     je .noNext
 
-    mov [rdi + node_offset_prev], r12       ; l -> first -> next -> prev = l -> first
+    mov [rdi + node_offset_prev], r12       ; l -> first -> next -> prev = NULL
     mov [r12 + l_offset_first], rdi         ; l -> first = l -> first -> next -> prev
     jmp .endRemoveFirst
 .noNext:
     mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL
 
 .endRemoveFirst:
-    pop r13
     pop r12
     pop rbp
     ret
 
+;-- -- -- -- -- -- -- --
+;rdi es puntero a lista
+;rsi es puntero a delete func.
 listRemoveLast:
+    push rbp
+    push r12
+
+    mov rbp, rsp
+    mov r12, rdi ; r12 es lista
+
+    mov rdi, [rdi + l_offset_last]          ; l -> last
+    mov rdi, [rdi + node_offset_data]       ; l -> last-> data
+    call rsi                                ; data removed
+
+    mov rdi, [r12 + l_offset_last]          ; l -> last
+    mov rdi, [rdi + node_offset_prev]       ; new_last = l -> last -> prev
+
+    cmp QWORD rdi, NULL ; reviso que exista el next.
+    je .noPrev
+
+    mov [r12 + l_offset_last], rdi   
+
+    add r12, l_offset_last
+    mov QWORD [rdi + node_offset_next], NULL       ; l -> last -> prev -> next = NULL
+    sub r12, l_offset_last
+    
+    jmp .endRemoveLast
+.noPrev:
+    mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL (es lo mismo que last en este caso)
+
+.endRemoveLast:
+    pop r12
+    pop rbp
     ret
 
 listRemove:
