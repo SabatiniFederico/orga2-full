@@ -13,25 +13,29 @@ void test_hashTable(FILE *pfile){
 
 int main (void){
 
-	
-	char* strings[10] = {"aa","bb","dd","ff","00","zz","cc","ee","gg","hh"};
+	/*
+	char* strings[10] = {"aa","aa","dd","ff","00","aa","cc","ee","gg","hh"};
 	list_t* l1 = listNew();
-
+    
     for(int i=0; i<5;i++)
        listAdd(l1,strClone(strings[i]),(funcCmp_t*)&strCmp);
+
+    listAdd(l1,strClone("RABAS"),(funcCmp_t*)&strCmp);
+    imprimirLista(l1);
+    
     listAddFirst(l1,strClone("PRIMERO"));
     listAddLast(l1,strClone("ULTIMO"));
+    
 
-
-    imprimirLista(l1);
-
-    listRemoveFirst(l1, (funcDelete_t*)&strDelete);
-    listRemoveLast(l1, (funcDelete_t*)&strDelete);
+    //listRemoveFirst(l1, (funcDelete_t*)&strDelete);
+    //listRemoveLast(l1, (funcDelete_t*)&strDelete);
 
     imprimirLista(l1);
     
+    listDelete(l1, (funcDelete_t*)&strDelete);
 
 	//[PRIMERO,00,aa,bb,dd,ff,ULTIMO]
+    */
 
 
     //FILE *pfile = fopen("salida.caso.propios.txt","w");

@@ -318,11 +318,6 @@ listAdd:
     mov r13, rsi ; puntero a data
     mov r14, rdx ; puntero a compare function     
 
-    mov rdi, node_size
-    call malloc
-
-    mov r15, rax ; puntero a nuevo nodo
-
     ;Chequeo si la lista no esta vacia 
     cmp QWORD [r12 + l_offset_first], NULL
     je .listAddFirst
@@ -334,8 +329,8 @@ listAdd:
 
     ;Chequeo si nuevo elemento debe ser colocado en la primera casilla.
     call QWORD r14
-    cmp rax, -1
-    je .listAddFirst
+    cmp rax, 1
+    jne .listAddFirst
 
     mov r8, [r12 + l_offset_last]
     mov r8, [r8]
@@ -344,10 +339,15 @@ listAdd:
 
     ;Chequeo si nuevo elemento debe ser colocado en la ultima casilla.
     call QWORD r14
-    cmp rax, 1
-    je .listAddLast
+    cmp rax, -1
+    jne .listAddLast
 
-    ;No tengo mas casos borde, loopeo y termino.
+    ;No tengo mas casos borde, creo el nodo, loopeo y termino.
+    mov rdi, node_size
+    call malloc
+    mov r15, rax ; puntero a nuevo nodo
+
+
     mov r12, [r12 + l_offset_first]
     ;tengo que hacer sucesivos llamados a cmp.
 .siguienteAdd:
@@ -355,10 +355,9 @@ listAdd:
     mov rdi, [r12 + node_offset_data]
     mov rsi, r13
 
-
     call QWORD r14
-    cmp rax, -1
-    je .insertNewNode
+    cmp rax, 1
+    jne .insertNewNode
 
     mov r12, [r12 + node_offset_next]
     jmp .siguienteAdd
@@ -420,6 +419,8 @@ listRemoveFirst:
     call rsi                                ; data removed
 
     mov rdi, [r12 + l_offset_first]         ; l->first
+    mov rsi, [r12 + l_offset_first]
+
     mov rdi, [rdi+ node_offset_next]        ; new_first = l - >first -> next
 
     cmp QWORD rdi, NULL ; reviso que exista el next.
@@ -430,6 +431,9 @@ listRemoveFirst:
     jmp .endRemoveFirst
 .noNext:
     mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL
+
+    mov rdi, rsi
+    call free ; Elmino efectivamente el nodo.
 
 .endRemoveFirst:
     pop r12
@@ -451,6 +455,8 @@ listRemoveLast:
     call rsi                                ; data removed
 
     mov rdi, [r12 + l_offset_last]          ; l -> last
+    mov rsi, [r12 + l_offset_last]
+
     mov rdi, [rdi + node_offset_prev]       ; new_last = l -> last -> prev
 
     cmp QWORD rdi, NULL ; reviso que exista el next.
@@ -466,16 +472,61 @@ listRemoveLast:
 .noPrev:
     mov QWORD [r12 + l_offset_first], NULL  ; l -> first = NULL (es lo mismo que last en este caso)
 
+    mov rdi, rsi
+    call free
+
 .endRemoveLast:
     pop r12
     pop rbp
     ret
 
+;-- -- -- -- -- -- -- --
+;rdi es puntero a lista
 listRemove:
     ret
 
-
+;-- -- -- -- -- -- -- --
+;rdi es puntero a lista
+;rsi es delete func
 listDelete:
+
+    ;Bueno. Esto se puede hacer de 2 maneras, una fácil es abusar de listRemoveFirst
+    ;hasta que la lista este vacia.
+
+    ;entiendo que eso pierde un poco de performance. así que voy a loopear.
+    push rbp
+    push r12 
+    push r13
+    push r14
+
+    mov rbp, rsp
+    mov r12, rdi ; r12 es lista
+    mov r13, [r12 + l_offset_first] ; mi iterador
+    mov r14, rsi ; my delete func.
+
+.deleteLoop:
+    cmp QWORD r13, NULL ; reviso que exista el next.
+    je .endDelete
+
+
+    mov rdi, [r13 + node_offset_data] ; asigno data a rdi y la elimino
+    call r14
+
+    mov rdi, r13; elimino el nodo
+    mov r13, [r13 + node_offset_next]
+    call free
+
+    jmp .deleteLoop
+
+.endDelete:
+    ; Finalmente tengo que eliminar la lista.
+    mov rdi, r12
+    call free
+
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
     ret
 
 listPrint:
