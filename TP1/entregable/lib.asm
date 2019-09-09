@@ -858,7 +858,42 @@ hashTableAdd:
     pop rbp
     ret
     
+;rdi -> HashTable
+;rsi -> slot 32 bits
+;rdx -> func delete
 hashTableDeleteSlot:
+    push rbp
+    mov rbp, rsp
+    push r12    
+    push r13
+
+    mov r12, rdi ; <- tabla a iterar.
+    mov r13, rdx ; <- func delete.
+                 ; rsi es slot 32 bits. x86 dice que se llama ESI, creamosle.
+
+    mov r12, [r12 + hash_offset_listArray]  ;Me posiciono en la lista
+    mov r12, [r12 + l_offset_first] ; y me preparo para iterarla
+
+.loopSlot:
+    cmp DWORD esi, 0    ;DWORD Because 32 bits.
+    je .eliminarASlot
+
+    mov r12, [r12 + node_offset_next]
+    dec esi             ; Si no es el slot, itero y decremento edx.
+    jmp .loopSlot
+
+.eliminarASlot:
+
+    mov rdi, [r12 + node_offset_data]
+    mov rsi, r13    ; <- rdi = puntero a slot
+    call listDelete ; <- Eliminamos el slot por completo.
+
+    call listNew    ; <- y lo creamos de vuelta
+    mov [r12 + node_offset_data], rax
+
+    pop r13
+    pop r12
+    pop rbp
     ret
 
 hashTableDelete:

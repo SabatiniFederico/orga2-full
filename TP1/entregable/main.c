@@ -30,7 +30,11 @@ int main (void){
     hashTableAdd(hash, strClone(strings[1]));
     hashTableAdd(hash, strClone(strings[2]));
     hashTableAdd(hash, strClone("arboleda"));
+
+    hashTableDeleteSlot(hash, 0,(funcDelete_t*)&strDelete);
     hashTablePrint(hash, pfile, (funcPrint_t*)&strPrint);
+
+
     fclose(pfile);
     
 
