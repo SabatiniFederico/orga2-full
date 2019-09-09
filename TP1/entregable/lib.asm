@@ -7,6 +7,7 @@ listaCorcheteIzq: db  "[",0
 listaCorcheteDer:  db  "]",0
 listaSeparador:  db  ",",0
 
+%define l_size 16
 %define l_offset_first 0
 %define l_offset_last 8
 
@@ -242,6 +243,7 @@ listNew:
     push rbp 
     mov rbp, rsp
 
+    mov rdi, l_size
     call malloc 
 
     mov QWORD [rax + l_offset_first], NULL
@@ -404,13 +406,8 @@ listAdd:
     mov [r15 + node_offset_prev], rsi
 
     ;acomodo los punteros en prev y next
-    mov rdi, [r12 + node_offset_prev]
-
-    mov rsi, [r15 + node_offset_prev]
-    mov [rdi + node_offset_next], rsi
-
-    mov rsi, [r15 + node_offset_next]
-    mov [r12 + node_offset_prev], rsi
+    mov [r12 + node_offset_prev], r15
+    mov [rsi + node_offset_next], r15
     jmp .endAdd
 ;si lista esta vacia listAdd es igual a listAddFirst,
 ;si primer elemento mayor a data, listAdd es igual a listAddFirst
@@ -449,9 +446,17 @@ listRemoveFirst:
 
     mov r12, rdi ; r12 es lista
 
+    cmp QWORD [rdi + l_offset_first], NULL
+    je .end
+
+    ;Chequeo que fd no sea cero.
+    cmp QWORD rsi, NULL
+    je .noFd
+
     mov rdi, [rdi + l_offset_first]         ; l -> first
     mov rdi, [rdi + node_offset_data]       ; l -> first-> data
     call rsi                                ; data removed
+.noFd:
 
     mov rdi, [r12 + l_offset_first]         ; l->first
     mov rsi, [r12 + l_offset_first]
@@ -472,6 +477,7 @@ listRemoveFirst:
     mov rdi, rsi
     call free ; Elmino efectivamente el nodo.
 
+.end:
     pop r12
     add rsp, 8
     pop rbp
@@ -488,9 +494,17 @@ listRemoveLast:
 
     mov r12, rdi ; r12 es lista
 
+    cmp QWORD [rdi + l_offset_last], NULL
+    je .end
+
+    ;Chequeo que fd no sea cero.
+    cmp QWORD rsi, NULL
+    je .noFd
+
     mov rdi, [rdi + l_offset_last]          ; l -> last
     mov rdi, [rdi + node_offset_data]       ; l -> last-> data
     call rsi                                ; data removed
+.noFd:
 
     mov rdi, [r12 + l_offset_last]          ; l -> last
     mov rsi, [r12 + l_offset_last]
@@ -513,9 +527,10 @@ listRemoveLast:
 
 
 .endRemoveLast:
-
     mov rdi, rsi
     call free
+
+.end:
     pop r12
     add rsp, 8
     pop rbp
@@ -608,9 +623,13 @@ listRemove:
     push QWORD [rdi + node_offset_next] ; -> esto lo hago de vago, pusheo los punteros del nodo que voy a eliminar
                                         ; -> para luego hacer pop y actualizarlos, (pido disculpas por la falta de elegancia)
     
-    mov rdi, [rdi + node_offset_data]   ; asigno data a rdi y la elimino
-    call r15                                      
+    ;Chequeo que fd no sea cero.
+    cmp QWORD r15, NULL
+    je .noFd
 
+    mov rdi, [rdi + node_offset_data]   ; asigno data a rdi y la elimino
+    call r15    
+.noFd:                                 
     mov rdi, [r12 + node_offset_prev]   ; elimino el nodo
     call free
     pop rdi                         ; al ser 2 push se mantiene la alineacion.
@@ -656,9 +675,13 @@ listDelete:
     cmp QWORD r13, NULL ; reviso que exista el next.
     je .endDelete
 
+    ;Chequeo que fd no sea cero.
+    cmp QWORD r14, NULL
+    je .noFd
 
     mov rdi, [r13 + node_offset_data] ; asigno data a rdi y la elimino
     call r14
+.noFd:
 
     mov rdi, r13; elimino el nodo
     mov r13, [r13 + node_offset_next]
