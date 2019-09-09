@@ -897,4 +897,47 @@ hashTableDeleteSlot:
     ret
 
 hashTableDelete:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 8
+    push r12    
+    push r13
+    push r14
+
+    mov r12, rdi                        ; <- tabla a iterar.
+    mov r13, rsi                        ; <- func delete.
+    mov r14, rdi                        ; <- Tabla a iterar.
+
+    mov r14, [r14 + hash_offset_listArray]  ;Me posiciono en la lista
+
+    cmp QWORD [r14 + l_offset_first], NULL    ; <- si size fuese 0, estaría vacia.
+    je .vacia
+
+    mov r14, [r14 + l_offset_first] ; y me preparo para iterarla
+
+.loopSlot:
+    mov rdi, [r14 + node_offset_data]   
+    mov rsi, r13
+    call listDelete     ; <- elmino un slot de la lista.
+
+    cmp QWORD [r14 + node_offset_next], NULL ; <- verifico si existe sig elem.
+    mov r14, [r14 + node_offset_next]
+    jne .loopSlot
+
+    ; A esta altura elimine todos los slots a mano.
+    mov rdi, [r12 + hash_offset_listArray] ; me posiciono en el array principal del hash.
+    mov rsi, 0                             ; No necesito pasar ninguna delete func por que lo hice a mano.
+    call listDelete
+
+    ;Perfecto, matriz exterminada :), solo queda exterminar el hash en si.
+
+.vacia:
+    mov rdi, r12
+    call free ; y listo!
+
+    pop r14
+    pop r13
+    pop r12
+    add rsp, 8
+    pop rbp
     ret

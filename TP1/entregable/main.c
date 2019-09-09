@@ -24,15 +24,19 @@ int main (void){
     //test_strings(pfile); 
     //test_list(pfile);   
 
-    hashTable_t* hash = hashTableNew(33, (funcHash_t*)&strHash);
+    hashTable_t* hash = hashTableNew(4, (funcHash_t*)&strHash);
 
     hashTableAdd(hash, strClone(strings[0]));
     hashTableAdd(hash, strClone(strings[1]));
     hashTableAdd(hash, strClone(strings[2]));
+    hashTableAdd(hash, strClone(strings[3]));
+    hashTableAdd(hash, strClone(strings[6]));
     hashTableAdd(hash, strClone("arboleda"));
 
-    hashTableDeleteSlot(hash, 0,(funcDelete_t*)&strDelete);
     hashTablePrint(hash, pfile, (funcPrint_t*)&strPrint);
+    hashTableDelete(hash,(funcDelete_t*)&strDelete);
+
+
 
 
     fclose(pfile);
