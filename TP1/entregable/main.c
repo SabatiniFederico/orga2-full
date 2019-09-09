@@ -24,7 +24,8 @@ int main (void){
     //test_strings(pfile); 
     //test_list(pfile);   
 
-    hashTableNew(4, (funcHash_t*)&strHash);
+    hashTable_t* hash = hashTableNew(4, (funcHash_t*)&strHash);
+    hashTablePrint(hash, pfile, (funcPrint_t*)&strPrint);
 
     fclose(pfile);
     

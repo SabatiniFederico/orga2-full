@@ -58,5 +58,17 @@ void hashTableRemoveAll(hashTable_t* pTable, void* data, funcCmp_t* fc, funcDele
 }
 
 void hashTablePrint(hashTable_t* pTable, FILE *pFile, funcPrint_t* fp) {
+	uint32_t size = pTable -> size;
+	if(size != 0){
 
+		list_t* l1 = pTable -> listArray; 
+		listElem_t* elem = l1 -> first;
+
+		uint32_t i = 0;
+		while (size != i){
+	    	listPrint(elem -> data,pFile,fp); fprintf(pFile,"\n");
+	    	elem = elem -> next;
+			i++;
+		}
+	}
 }
