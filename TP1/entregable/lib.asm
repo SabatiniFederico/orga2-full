@@ -871,21 +871,26 @@ hashTableDeleteSlot:
     mov r13, rdx ; <- func delete.
                  ; rsi es slot 32 bits. x86 dice que se llama ESI, creamosle.
 
+    ; Necesito asegurarmo que ESI esta en el rango slots.
+    xor rdx, rdx    ; limpio el tope, recordar que es 64 bits.
+    mov eax, esi
+    div QWORD [r12 + hash_offset_size] ; realizo la division, Reminder se ubica en edx.
+
     mov r12, [r12 + hash_offset_listArray]  ;Me posiciono en la lista
     mov r12, [r12 + l_offset_first] ; y me preparo para iterarla
 
 .loopSlot:
-    cmp DWORD esi, 0    ;DWORD Because 32 bits.
+    cmp DWORD edx, 0    ;DWORD Because 32 bits.
     je .eliminarASlot
 
     mov r12, [r12 + node_offset_next]
-    dec esi             ; Si no es el slot, itero y decremento edx.
+    dec edx             ; Si no es el slot, itero y decremento edx.
     jmp .loopSlot
 
 .eliminarASlot:
 
-    mov rdi, [r12 + node_offset_data]
-    mov rsi, r13    ; <- rdi = puntero a slot
+    mov rdi, [r12 + node_offset_data] ; <- rdi = puntero a slot
+    mov rsi, r13    
     call listDelete ; <- Eliminamos el slot por completo.
 
     call listNew    ; <- y lo creamos de vuelta
@@ -917,6 +922,7 @@ hashTableDelete:
 
 .loopSlot:
     mov rdi, [r14 + node_offset_data]   
+
     mov rsi, r13
     call listDelete     ; <- elmino un slot de la lista.
 

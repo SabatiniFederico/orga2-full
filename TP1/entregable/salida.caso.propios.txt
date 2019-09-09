@@ -1,0 +1,40 @@
+==> strHash
+abeja=0
+arco=0
+casa=2
+dado=3
+==> hashTableAdd
+==> hashTableRemoveAll
+==> hashTableDeleteSlot
+[aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa,aa]
+[bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb,bb]
+[]
+[dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd,dd]
+[]
+[ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff,ff]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
