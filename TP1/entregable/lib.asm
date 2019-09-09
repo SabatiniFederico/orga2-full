@@ -7,6 +7,13 @@ listaCorcheteIzq: db  "[",0
 listaCorcheteDer:  db  "]",0
 listaSeparador:  db  ",",0
 
+%define l_offset_first 0
+%define l_offset_last 8
+
+%define node_size 24
+%define node_offset_data 0
+%define node_offset_next 8
+%define node_offset_prev 16
 
 section .text
 
@@ -60,9 +67,6 @@ strClone:
 
     push r12
     push r13
-
-
-
 
     xor rax, rax
     mov r12, rdi ; puntero original
@@ -139,6 +143,7 @@ strCmp:
 strConcat:
     push rbp  
     mov rbp, rsp
+    sub rsp, 8 ; Alineo los push.
 
     push r12
     push r13
@@ -195,7 +200,7 @@ strConcat:
     pop r14
     pop r13
     pop r12
-
+    add rsp, 8
     pop rbp
     ret
 
@@ -232,14 +237,6 @@ strPrint:
 
     pop rbp 
     ret
-    
-%define l_offset_first 0
-%define l_offset_last 8
-
-%define node_size 24
-%define node_offset_data 0
-%define node_offset_next 8
-%define node_offset_prev 16
 
 listNew:
     push rbp 
@@ -446,6 +443,7 @@ listAdd:
 listRemoveFirst:
     push rbp    
     mov rbp, rsp
+    sub rsp, 8
 
     push r12
 
@@ -475,7 +473,7 @@ listRemoveFirst:
     call free ; Elmino efectivamente el nodo.
 
     pop r12
-
+    add rsp, 8
     pop rbp
     ret
 
@@ -485,7 +483,7 @@ listRemoveFirst:
 listRemoveLast:
     push rbp
     mov rbp, rsp
-
+    sub rsp, 8
     push r12
 
     mov r12, rdi ; r12 es lista
@@ -519,13 +517,118 @@ listRemoveLast:
     mov rdi, rsi
     call free
     pop r12
-
+    add rsp, 8
     pop rbp
     ret
 
 ;-- -- -- -- -- -- -- --
 ;rdi es puntero a lista
+;rsi es puntero a data
+;rdx es puntero a func compare
+;rcx es puntero a delete func.
 listRemove:
+    push rbp
+    mov rbp, rsp
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov r12, rdi    ; list
+    mov r13, rsi    ; data
+    mov r14, rdx    ; cmp func
+    mov r15, rcx    ; del func
+
+    ; Aclaración del TP, casi siempre trato de pasar los scratch registers
+    ; a registros que se preservan en especial si los voy a usar, por que por ejemplo 
+
+    ; r15 y r14 son funciones que necesito realizar Call, es re molesto laburar sin mantenerlas.
+    ; r13 es la data que tengo que eliminar, y hacer el CMP, en general lo voy a usar varias veces en el loop
+    ; r12 inicia en lista, y minimamente necesito usarlo para iterar.
+
+.revisarCasosBorde:
+
+    ;Primero chequeo si la lista no esta vacia 
+    cmp QWORD [r12 + l_offset_first], NULL
+    je .endDelete                               ; -> Si esta vacia termine.
+
+    mov rdi, [r12 + l_offset_first]
+    mov rdi, [rdi]
+    mov rsi, r13
+
+    ;Chequeo si El primer elemento debe ser eliminado.
+    call QWORD r14
+    cmp rax, 0
+    jne .siguiente
+
+    ;Necesito eliminar el primer elemento, son iguales.
+    mov rdi, r12
+    mov rsi, r15
+    call listRemoveFirst    ;Elimino el primer elemento.
+    jmp .revisarCasosBorde  ;Mi lista a sido modificada! debo revalidar si no esta vacia, (ademas el primer elemento podría estar repetido)
+
+.siguiente:
+
+    mov rdi, [r12 + l_offset_last]
+    mov rdi, [rdi]
+    mov rsi, r13
+    ;Chequeo si el último elemento debe ser eliminado.
+    call QWORD r14
+    cmp rax, 0
+    jne .buscarEnMedio
+
+    ;Necesito eliminar el ultimo elemento, son iguales.
+    mov rdi, r12
+    mov rsi, r15
+    call listRemoveLast     ;Elimino el primer elemento.
+    jmp .revisarCasosBorde  ;Mi lista a sido modificada! debo revalidar si no esta vacia, (ademas el ultimo elemento podría estar repetido)
+
+.buscarEnMedio:
+
+    ;Llegado a este punto no hay mas casos borde, solo tengo que revisar el medio con un loop y termino.
+    mov r12, [r12 + l_offset_first]
+
+.loopMedio:
+    ;reviso si es el último elemento, ya que si es el caso, termine
+    cmp QWORD r12, NULL
+    je .endDelete
+
+    mov rdi, r13
+    mov rsi, [r12 + node_offset_data]
+
+
+    mov r12, [r12 + node_offset_next]
+    call QWORD r14                      ; -> Comparo
+    cmp rax, 0
+    jne .loopMedio
+
+    mov rdi, [r12 + node_offset_prev]
+
+    push QWORD [rdi + node_offset_prev]
+    push QWORD [rdi + node_offset_next] ; -> esto lo hago de vago, pusheo los punteros del nodo que voy a eliminar
+                                        ; -> para luego hacer pop y actualizarlos, (pido disculpas por la falta de elegancia)
+    
+    mov rdi, [rdi + node_offset_data]   ; asigno data a rdi y la elimino
+    call r15                                      
+
+    mov rdi, [r12 + node_offset_prev]   ; elimino el nodo
+    call free
+    pop rdi                         ; al ser 2 push se mantiene la alineacion.
+    pop rsi                         ; y al guardarlos los actualizo en el acto.
+
+    mov [rdi + node_offset_prev], rsi
+    mov [rsi + node_offset_next], rdi
+
+    jmp .loopMedio
+
+
+.endDelete:
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
     ret
 
 ;-- -- -- -- -- -- -- --
@@ -539,6 +642,7 @@ listDelete:
     ;entiendo que eso pierde un poco de performance. así que voy a loopear.
     push rbp
     mov rbp, rsp
+    sub rsp, 8
 
     push r12 
     push r13
@@ -570,7 +674,7 @@ listDelete:
     pop r14
     pop r13
     pop r12
-
+    add rsp, 8
     pop rbp
     ret
 
@@ -578,7 +682,7 @@ listDelete:
 listPrint:
     push rbp
     mov rbp, rsp
-    sub rsp, 8 ; ESTA LINEA LA ODIO PERO NO LA PUEDO SACAR, ¿por alguna razón llega mal alineado quizas?
+    sub rsp, 8 ;
     push r12 
     push r13
     push r14

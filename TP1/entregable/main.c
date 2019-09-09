@@ -40,23 +40,30 @@ int main (void){
 
     FILE *pfile = fopen("salida.caso.propios.txt","w");
 
-    
-    list_t* l1 = listNew();
-
-    listAddFirst(l1,strClone("PRIMERO"));
-    listAddLast(l1,strClone("ULTIMO"));
-
-    listRemoveLast(l1, (funcDelete_t*)&strDelete);
-    listRemoveFirst(l1, (funcDelete_t*)&strDelete);
-
-
-    listPrint(l1,pfile,(funcPrint_t*)&strPrint);
-    listPrintReverse(l1,pfile,(funcPrint_t*)&strPrint);
-
-    listDelete(l1, (funcDelete_t*)&strDelete);
 
     //test_strings(pfile);
     //test_hashTable(pfile);
+
+    //char* strings[10] = {"aa","bb","aa","aa","aa","aa","cc","ee","gg","hh"};
+    list_t* l1 = listNew();
+    
+    //for(int i=0; i<5;i++)
+    //   listAdd(l1,strClone(strings[i]),(funcCmp_t*)&strCmp);
+
+    listAddLast(l1,strClone("bb"));
+    listAddLast(l1,strClone("aa"));
+    listAddLast(l1,strClone("bb"));
+    listAddLast(l1,strClone("aa"));
+    listAddLast(l1,strClone("aa"));
+    listAddLast(l1,strClone("bb"));
+
+    listPrint(l1,pfile,(funcPrint_t*)&strPrint);
+
+    listRemove(l1, "aa", (funcCmp_t*)&strCmp, (funcDelete_t*)&strDelete);
+
+    listPrint(l1,pfile,(funcPrint_t*)&strPrint);
+    
+    listDelete(l1, (funcDelete_t*)&strDelete);
     
     //test_strings(pfile);    
 
@@ -120,19 +127,4 @@ void test_strings(FILE *pfile) {
             fprintf(pfile,"cmp(%s,%s) -> %i\n",texts[i],texts[j],strCmp(texts[i],texts[j]));
         }
     }
-}
-
-void imprimirLista(list_t* l1){
-	if(l1 -> first == NULL) {
-		printf("NULL");
-	} else {
-		printf("[");
-		listElem_t* elem = l1 -> first;
-		do {
-			char* data = elem -> data;
-			printf("%s,", data);
-			elem = elem -> next;
-		} while (elem != NULL);
-		printf("]");
-	}
 }
