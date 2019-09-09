@@ -15,37 +15,16 @@ char* strings[10] = {"aa","bb","dd","ff","00","zz","cc","ee","gg","hh"};
 
 int main (void){
 
-	/*
-	char* strings[10] = {"aa","aa","dd","ff","00","aa","cc","ee","gg","hh"};
-	list_t* l1 = listNew();
-    
-    for(int i=0; i<5;i++)
-       listAdd(l1,strClone(strings[i]),(funcCmp_t*)&strCmp);
-
-    listAdd(l1,strClone("RABAS"),(funcCmp_t*)&strCmp);
-    
-    listAddFirst(l1,strClone("PRIMERO"));
-    listAddLast(l1,strClone("ULTIMO"));
-    */
-
-    //listRemoveFirst(l1, (funcDelete_t*)&strDelete);
-    //listRemoveLast(l1, (funcDelete_t*)&strDelete);
-    
-    //listDelete(l1, (funcDelete_t*)&strDelete);
-
-	//[PRIMERO,00,aa,bb,dd,ff,ULTIMO]
-    
-
-    
     FILE *pfile = fopen("salida.caso.propios.txt","w");
 
 
     //test_strings(pfile);
     //test_hashTable(pfile);
     
-    test_strings(pfile); 
-    test_list(pfile);   
+    //test_strings(pfile); 
+    //test_list(pfile);   
 
+    hashTableNew(4, (funcHash_t*)&strHash);
 
     fclose(pfile);
     

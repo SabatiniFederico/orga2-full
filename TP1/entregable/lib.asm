@@ -16,6 +16,12 @@ listaSeparador:  db  ",",0
 %define node_offset_next 8
 %define node_offset_prev 16
 
+%define hash_size 24
+%define hash_offset_listArray 0
+%define hash_offset_size 8
+%define hash_offset_funcHash 16 ; el alineamiento me hace desperdiciar 4 bytes, uint32 = 4.
+
+
 section .text
 
 extern malloc
@@ -753,7 +759,60 @@ listPrint:
     pop rbp
     ret
 
+
+
+;rdi -> Size
+;rsi -> funcHasH
 hashTableNew:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 8
+    push r12    
+    push r13
+    push r14
+
+    xor r12, r12        ; <- limpio r12, ya que unint_32 no ocupa 64bits.
+    mov r12, rdi        ; <- size
+    mov r13, rsi        ; <- puntero a funcHash
+
+    mov rdi, hash_size
+    call malloc
+    mov r14, rax        ; <- puntero a hash
+
+    mov [r14 + hash_offset_size], r12
+    mov [r14 + hash_offset_funcHash], r13   ; <- seteo funcHash, y size, registros r12 y r13 ya no los necesito
+                                            ; <- puedo usarlos como quiera.
+
+    ;Primero necesito crear una lista Principal de punteros a listas.
+    ;Nota personal: una hashTable en este contexto es literalmente una matriz,
+    ; con un ordenamiento especial, dado por una funcion de hash.
+
+    call listNew
+    mov [r14 + hash_offset_listArray], rax  ; <- seteo el puntero a la lista principal.
+
+    ;tengo que crear r12 (size) listas. Refrescar fd* a 0, ya que es lista de punteros.
+
+.loopTablas:
+    dec r12 ; <- NOTA: Unsigned int no puede contener negativos, uno de mis errores fue que si
+            ; <- se decrementa r12 = 0, r12 = MAX_INT positivo. Y loopea infinitamente.
+
+    call listNew
+    mov rdi, [r14] ;rdi = puntero a lista principal
+    mov rsi, rax   ;rsi = puntero a lista interna
+
+    call listAddFirst
+
+    cmp r12, 0
+    jne .loopTablas
+
+    ;termine de crear todas las listas que necesitaba
+
+    mov rax, r14
+    pop r14
+    pop r13
+    pop r12
+    add rsp, 8
+    pop rbp
     ret
 
 hashTableAdd:
