@@ -77,6 +77,7 @@ void hashTablePrint(hashTable_t* pTable, FILE *pFile, funcPrint_t* fp) {
 
 		uint32_t i = 0;
 		while (size != i){
+			fprintf(pFile,"%d = ", i);
 	    	listPrint(elem -> data,pFile,fp); fprintf(pFile,"\n");
 	    	elem = elem -> next;
 			i++;
