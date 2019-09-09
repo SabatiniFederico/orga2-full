@@ -54,7 +54,18 @@ uint32_t strHash(char* pString) {
 }
 
 void hashTableRemoveAll(hashTable_t* pTable, void* data, funcCmp_t* fc, funcDelete_t* fd) {
+	uint32_t slot = strHash(data) % pTable -> size;
 
+	list_t* l1 = pTable -> listArray; 
+	listElem_t* elem = l1 -> first;	//Intente hacerlo en 2 lineas abusando listArray[slot] pero no me salio. 
+
+	uint32_t i = 0;
+	while (slot != i){
+	    	elem = elem -> next;
+			i++;
+		}
+
+	listRemove(elem -> data, data, fc, fd);
 }
 
 void hashTablePrint(hashTable_t* pTable, FILE *pFile, funcPrint_t* fp) {

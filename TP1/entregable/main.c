@@ -24,7 +24,7 @@ int main (void){
     //test_strings(pfile); 
     //test_list(pfile);   
 
-    hashTable_t* hash = hashTableNew(4, (funcHash_t*)&strHash);
+    hashTable_t* hash = hashTableNew(5, (funcHash_t*)&strHash);
 
     hashTableAdd(hash, strClone(strings[0]));
     hashTableAdd(hash, strClone(strings[1]));
@@ -32,8 +32,18 @@ int main (void){
     hashTableAdd(hash, strClone(strings[3]));
     hashTableAdd(hash, strClone(strings[6]));
     hashTableAdd(hash, strClone("arboleda"));
+    hashTableAdd(hash, strClone("arboleda"));
+    hashTableAdd(hash, strClone("arbos"));
+    hashTableAdd(hash, strClone("dd2"));
+    hashTableAdd(hash, strClone("dedos"));
+    hashTableAdd(hash, strClone("dame3"));
+
 
     hashTablePrint(hash, pfile, (funcPrint_t*)&strPrint);
+    hashTableRemoveAll(hash, strClone("arboleda"), (funcCmp_t*)&strCmp, (funcDelete_t*)&strDelete);
+    hashTableRemoveAll(hash, strClone("dedos"), (funcCmp_t*)&strCmp, (funcDelete_t*)&strDelete);
+    hashTablePrint(hash, pfile, (funcPrint_t*)&strPrint);
+
     hashTableDelete(hash,(funcDelete_t*)&strDelete);
 
 
