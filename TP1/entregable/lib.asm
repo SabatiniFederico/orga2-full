@@ -815,7 +815,47 @@ hashTableNew:
     pop rbp
     ret
 
+;rdi -> HashTable
+;rsi -> data
 hashTableAdd:
+    push rbp
+    mov rbp, rsp
+    push r12    
+    push r13
+
+    mov r12, rdi ; <- tabla
+    mov r13, rsi ; <- data a insertar
+
+    ; Necesito averiguar en que slot agregarlo tengo que llamar a hashFunc
+    ; Y luego hacer modulo para saber el slot.
+
+    mov rdi, r13
+    mov rsi, [r12 + hash_offset_funcHash]
+    call rsi
+
+    xor rdx, rdx    ; limpio el tope, recordar que es 64 bits.
+
+    div QWORD [r12 + hash_offset_size] ; realizo la division, Reminder se ubica en edx.
+
+    mov r12, [r12 + hash_offset_listArray]  ;Me posiciono en la lista
+    mov r12, [r12 + l_offset_first] ; y me preparo para iterarla
+
+.loopSlot:
+    cmp DWORD edx, 0    ;DWORD Because 32 bits.
+    je .agregarASlot
+
+    mov r12, [r12 + node_offset_next]
+    dec edx             ; Si no es el slot, itero y decremento edx.
+    jmp .loopSlot
+
+.agregarASlot:
+    mov rdi, [r12 + node_offset_data]   ; <- rdi = puntero a slot
+    mov rsi, r13                        ; <- data a insertar en slot
+    call listAddLast
+
+    pop r13
+    pop r12
+    pop rbp
     ret
     
 hashTableDeleteSlot:
